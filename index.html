@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Branch 2 Virtual Lobby</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BRANCH 2 VIRTUAL LOBBY — night-shift mission control
+   A neon suspension bridge over a holographic grid.
+   ============================================================ */
+:root{
+  --void:#070B15;
+  --panel:rgba(17,26,45,.72);
+  --panel-solid:#111A2D;
+  --line:rgba(96,140,200,.22);
+  --text:#E8F0FF;
+  --dim:#7C8DB0;
+  --cyan:#3EE8FF;
+  --orange:#FF7A3D;
+  --violet:#8B7CFF;
+  --green:#4AFFA1;
+  --amber:#FFC94A;
+  --mono:'Share Tech Mono',Menlo,monospace;
+  --disp:'Chakra Petch',sans-serif;
+  --body:'Inter',-apple-system,sans-serif;
+  --r:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--void);color:var(--text);font-family:var(--body);}
+body{min-height:100vh;overflow-x:hidden;}
+
+/* ---- ambient layers: stars + grid horizon ---- */
+.stars, .gridfloor{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.stars{
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, #cfe9ff 60%, transparent),
+    radial-gradient(1px 1px at 78% 12%, #cfe9ff 60%, transparent),
+    radial-gradient(1.5px 1.5px at 34% 64%, #9fd8ff 60%, transparent),
+    radial-gradient(1px 1px at 58% 38%, #cfe9ff 60%, transparent),
+    radial-gradient(1.5px 1.5px at 90% 55%, #9fd8ff 60%, transparent),
+    radial-gradient(1px 1px at 22% 84%, #cfe9ff 60%, transparent),
+    radial-gradient(1px 1px at 66% 78%, #cfe9ff 60%, transparent),
+    radial-gradient(1.5px 1.5px at 44% 8%, #cfe9ff 60%, transparent);
+  opacity:.5;
+  animation:twinkle 6s ease-in-out infinite alternate;
+}
+@keyframes twinkle{from{opacity:.3}to{opacity:.65}}
+.gridfloor{
+  top:auto;height:34vh;
+  background:
+    linear-gradient(transparent, rgba(139,124,255,.10)),
+    repeating-linear-gradient(90deg, rgba(62,232,255,.13) 0 1px, transparent 1px 70px),
+    repeating-linear-gradient(0deg, rgba(139,124,255,.16) 0 1px, transparent 1px 34px);
+  transform:perspective(420px) rotateX(58deg);
+  transform-origin:bottom;
+  mask-image:linear-gradient(transparent, #000 45%);
+  -webkit-mask-image:linear-gradient(transparent, #000 45%);
+}
+
+/* ---- header ---- */
+header{position:relative;z-index:2;padding:30px 22px 0;}
+.hd-inner{max-width:1080px;margin:0 auto;}
+.toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+.eyebrow{
+  font-family:var(--mono);font-size:12px;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--cyan);margin-bottom:8px;
+  text-shadow:0 0 12px rgba(62,232,255,.6);
+}
+h1{
+  font-family:var(--disp);font-weight:700;margin:0;
+  font-size:clamp(30px,5.4vw,52px);letter-spacing:.015em;line-height:1.0;
+  background:linear-gradient(92deg,#EAF4FF 20%,var(--cyan) 55%,var(--violet) 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(62,232,255,.25));
+}
+.tagline{font-family:var(--mono);font-size:13px;color:var(--dim);margin:12px 0 0;min-height:20px;}
+.clock{
+  font-family:var(--mono);text-align:right;line-height:1.15;
+  color:var(--cyan);text-shadow:0 0 14px rgba(62,232,255,.55);
+}
+.clock .big{font-size:clamp(22px,3.4vw,34px);letter-spacing:.06em;}
+.clock .sm{font-size:11.5px;color:var(--dim);text-shadow:none;letter-spacing:.14em;text-transform:uppercase;}
+
+.ticker{
+  display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;padding-bottom:8px;
+}
+.chip{
+  font-family:var(--mono);font-size:12.5px;color:var(--text);
+  background:var(--panel);border:1px solid var(--line);border-radius:999px;
+  padding:6px 14px;backdrop-filter:blur(6px);
+  display:flex;align-items:center;gap:7px;
+}
+.chip b{color:var(--cyan);font-weight:400;}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ---- neon suspension bridge ---- */
+.bridge{position:relative;z-index:1;margin:6px auto 0;max-width:1080px;padding:0 22px;}
+.bridge svg{display:block;width:100%;height:88px;overflow:visible;}
+.b-deck{stroke:var(--cyan);stroke-width:2.5;filter:drop-shadow(0 0 6px rgba(62,232,255,.8));}
+.b-tower{stroke:var(--violet);stroke-width:3;filter:drop-shadow(0 0 6px rgba(139,124,255,.8));}
+.b-cable{stroke:var(--orange);stroke-width:1.6;fill:none;filter:drop-shadow(0 0 5px rgba(255,122,61,.7));}
+.b-hanger{stroke:rgba(255,122,61,.5);stroke-width:1;}
+.b-pulse{
+  stroke:#fff;stroke-width:2.5;fill:none;stroke-linecap:round;
+  stroke-dasharray:26 620;
+  animation:travel 5s linear infinite;
+  filter:drop-shadow(0 0 8px var(--cyan));
+}
+@keyframes travel{from{stroke-dashoffset:646}to{stroke-dashoffset:0}}
+
+/* ---- grid of badges ---- */
+main{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:22px 18px 70px;}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));}
+.badge{
+  position:relative;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--r);
+  padding:20px 14px 16px;backdrop-filter:blur(8px);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
+  transition:transform .14s ease,border-color .14s,box-shadow .14s;
+}
+.badge:hover{transform:translateY(-3px);border-color:rgba(62,232,255,.5);box-shadow:0 8px 30px rgba(62,232,255,.10);}
+.badge:active{transform:translateY(-1px) scale(.99);}
+.badge.in{border-color:rgba(74,255,161,.55);box-shadow:0 0 22px rgba(74,255,161,.10), inset 0 0 30px rgba(74,255,161,.04);}
+.badge.stepped{border-color:rgba(255,201,74,.6);box-shadow:0 0 22px rgba(255,201,74,.10);}
+.badge.away{border-color:rgba(139,124,255,.55);}
+.badge.done{opacity:.55;}
+
+/* avatar with status ring */
+.ring{
+  width:88px;height:88px;border-radius:50%;padding:4px;margin-bottom:12px;
+  background:conic-gradient(from 210deg, var(--line), var(--line));
+  transition:background .3s;
+}
+.badge.in .ring{background:conic-gradient(var(--green), var(--cyan), var(--green));animation:spin 6s linear infinite;}
+.badge.stepped .ring{background:conic-gradient(var(--amber), rgba(255,201,74,.15), var(--amber));animation:spin 6s linear infinite;}
+.badge.away .ring{background:conic-gradient(var(--violet), rgba(139,124,255,.15), var(--violet));}
+@keyframes spin{to{transform:rotate(1turn)}}
+.avatar{
+  width:100%;height:100%;border-radius:50%;overflow:hidden;
+  background:var(--panel-solid);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--disp);font-weight:700;font-size:28px;color:var(--text);
+  transform:rotate(0deg) !important;   /* keep face upright while ring spins */
+}
+.badge.in .ring .avatar, .badge.stepped .ring .avatar{animation:unspin 6s linear infinite;}
+@keyframes unspin{to{transform:rotate(-1turn)}}
+.avatar img{width:100%;height:100%;object-fit:cover;}
+
+.badge .nm{font-family:var(--disp);font-weight:600;font-size:15.5px;line-height:1.2;letter-spacing:.02em;}
+.badge .id{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin:3px 0 9px;letter-spacing:.12em;}
+
+.pill{
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:lowercase;
+  padding:3px 12px;border-radius:999px;margin-bottom:9px;
+  border:1px solid var(--line);color:var(--dim);
+}
+.pill.telework{border-color:rgba(62,232,255,.5);color:var(--cyan);text-shadow:0 0 8px rgba(62,232,255,.5);}
+.pill.office{border-color:rgba(74,255,161,.5);color:var(--green);text-shadow:0 0 8px rgba(74,255,161,.5);}
+.pill.stepped{border-color:rgba(255,201,74,.55);color:var(--amber);text-shadow:0 0 8px rgba(255,201,74,.5);}
+.pill.away{border-color:rgba(139,124,255,.55);color:var(--violet);text-shadow:0 0 8px rgba(139,124,255,.5);}
+
+.times{font-family:var(--mono);font-size:11.5px;display:flex;gap:12px;color:var(--text);}
+.times .off{color:#44557a;}
+
+.mini{
+  position:absolute;top:9px;width:28px;height:28px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  background:transparent;color:var(--dim);border:1px solid transparent;cursor:pointer;
+}
+.mini:hover{border-color:var(--line);color:var(--cyan);}
+.mini.note-btn{right:9px;}
+.mini.edit-btn{right:42px;}
+
+/* scan sweep when a punch lands */
+.badge .scan{
+  position:absolute;inset:0;border-radius:var(--r);pointer-events:none;overflow:hidden;opacity:0;
+}
+.badge.scanned .scan{opacity:1;}
+.badge.scanned .scan::before{
+  content:"";position:absolute;left:-30%;top:0;bottom:0;width:30%;
+  background:linear-gradient(90deg,transparent,rgba(62,232,255,.45),transparent);
+  animation:sweep .7s ease-out;
+}
+@keyframes sweep{from{left:-30%}to{left:110%}}
+
+/* ---- modal ---- */
+.overlay{
+  position:fixed;inset:0;background:rgba(4,7,14,.72);
+  display:none;align-items:flex-end;justify-content:center;z-index:50;
+  backdrop-filter:blur(4px);
+}
+.overlay.show{display:flex;}
+.sheet{
+  background:linear-gradient(180deg, rgba(23,34,58,.97), rgba(13,20,36,.97));
+  border:1px solid var(--line);border-bottom:none;
+  width:100%;max-width:470px;border-radius:20px 20px 0 0;
+  padding:24px 22px 28px;animation:up .2s ease;max-height:86vh;overflow-y:auto;
+  box-shadow:0 -10px 60px rgba(62,232,255,.08);
+}
+@media(min-width:560px){
+  .overlay{align-items:center;}
+  .sheet{border-radius:20px;border-bottom:1px solid var(--line);}
+}
+@keyframes up{from{transform:translateY(34px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sheet h2{font-family:var(--disp);font-size:21px;margin:0 0 3px;letter-spacing:.02em;}
+.sheet .sub{font-family:var(--mono);font-size:12px;color:var(--dim);margin-bottom:18px;}
+
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.opt{
+  border:1px solid var(--line);border-radius:13px;background:rgba(10,16,30,.6);
+  padding:18px 10px;font-family:var(--disp);font-weight:600;font-size:16px;color:var(--text);
+  cursor:pointer;transition:border-color .12s,box-shadow .12s,transform .1s;text-align:center;
+}
+.opt:hover{border-color:var(--cyan);box-shadow:0 0 18px rgba(62,232,255,.15);}
+.opt:active{transform:scale(.98);}
+.opt.wide{grid-column:1 / -1;}
+.opt.more{background:linear-gradient(92deg, rgba(255,122,61,.16), rgba(139,124,255,.16));border-color:rgba(255,122,61,.5);}
+.opt.more:hover{border-color:var(--orange);box-shadow:0 0 18px rgba(255,122,61,.2);}
+.opt-grid.six .opt{font-size:14px;padding:14px 8px;}
+
+.act{
+  display:flex;align-items:center;gap:13px;width:100%;
+  border:1px solid var(--line);border-radius:13px;background:rgba(10,16,30,.6);
+  padding:15px 15px;margin-bottom:10px;cursor:pointer;text-align:left;
+  font-family:var(--body);font-size:15px;font-weight:500;color:var(--text);
+  transition:border-color .12s,box-shadow .12s;
+}
+.act:hover{border-color:var(--cyan);box-shadow:0 0 16px rgba(62,232,255,.12);}
+.act .ic{font-size:20px;width:28px;text-align:center;}
+.act small{display:block;font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--dim);margin-top:2px;}
+
+.editline{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px;}
+.editline label{font-family:var(--mono);font-size:12px;color:var(--dim);}
+.editline label span{color:#44557a;}
+.editline input[type=time]{
+  font-family:var(--mono);font-size:14px;border:1px solid var(--line);
+  border-radius:9px;padding:7px 9px;background:rgba(10,16,30,.8);color:var(--text);
+  color-scheme:dark;
+}
+textarea{
+  width:100%;border:1px solid var(--line);border-radius:11px;
+  font-family:var(--body);font-size:14px;padding:11px;resize:vertical;min-height:88px;
+  background:rgba(10,16,30,.8);color:var(--text);
+}
+textarea::placeholder{color:#44557a;}
+.btnrow{display:flex;gap:11px;margin-top:15px;}
+.btn{
+  flex:1;border:none;border-radius:11px;padding:13px;cursor:pointer;
+  font-family:var(--disp);font-weight:600;font-size:15px;letter-spacing:.03em;
+}
+.btn.primary{
+  background:linear-gradient(92deg,var(--cyan),var(--violet));color:#06101f;
+  box-shadow:0 0 20px rgba(62,232,255,.3);
+}
+.btn.primary:hover{filter:brightness(1.1);}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text);}
+.btn.ghost:hover{border-color:var(--cyan);}
+
+/* ---- daily transmission (quote of the day) ---- */
+.qotd{
+  position:relative;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--r);padding:22px 24px 18px;margin-bottom:22px;
+  backdrop-filter:blur(8px);overflow:hidden;
+}
+.qotd::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(var(--orange),var(--violet));
+  box-shadow:0 0 12px rgba(255,122,61,.6);
+}
+.qotd .qhead{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;
+}
+.qotd .qtitle{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--orange);text-shadow:0 0 10px rgba(255,122,61,.5);
+}
+.qotd .qdate{font-family:var(--mono);font-size:11px;color:var(--dim);}
+.qotd blockquote{
+  margin:0;font-family:var(--disp);font-weight:500;
+  font-size:clamp(17px,2.3vw,21px);line-height:1.45;color:var(--text);
+}
+.qotd blockquote::before{content:'“';color:var(--orange);margin-right:2px;}
+.qotd blockquote::after{content:'”';color:var(--orange);margin-left:2px;}
+.qotd .qmeta{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px;
+  font-family:var(--mono);font-size:12px;color:var(--dim);
+}
+.qotd .qmeta .auth{color:var(--cyan);}
+.qotd .qmeta a{
+  color:var(--violet);text-decoration:none;border:1px solid rgba(139,124,255,.4);
+  border-radius:999px;padding:2px 11px;transition:box-shadow .12s,border-color .12s;
+}
+.qotd .qmeta a:hover{border-color:var(--violet);box-shadow:0 0 12px rgba(139,124,255,.3);}
+.qotd .qtoggle{
+  margin-top:14px;background:none;border:none;cursor:pointer;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--dim);
+  padding:0;display:flex;align-items:center;gap:6px;
+}
+.qotd .qtoggle:hover{color:var(--cyan);}
+.qotd .qtoggle .tri{display:inline-block;transition:transform .18s;}
+.qotd.open .qtoggle .tri{transform:rotate(90deg);}
+.qarchive{
+  max-height:0;overflow:hidden;transition:max-height .28s ease;
+}
+.qotd.open .qarchive{
+  max-height:280px;overflow-y:auto;margin-top:12px;
+  border-top:1px dashed var(--line);padding-top:10px;
+}
+.qarchive::-webkit-scrollbar{width:7px;}
+.qarchive::-webkit-scrollbar-track{background:transparent;}
+.qarchive::-webkit-scrollbar-thumb{background:rgba(62,232,255,.25);border-radius:99px;}
+.qarchive::-webkit-scrollbar-thumb:hover{background:rgba(62,232,255,.45);}
+.qrow{
+  display:grid;grid-template-columns:86px 1fr;gap:12px;
+  padding:9px 4px;border-bottom:1px solid rgba(96,140,200,.10);
+  font-size:13.5px;line-height:1.4;
+}
+.qrow:last-child{border-bottom:none;}
+.qrow .qd{font-family:var(--mono);font-size:11px;color:var(--violet);padding-top:2px;}
+.qrow .qq{color:var(--text);}
+.qrow .qa{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px;}
+.qrow .qa a{color:var(--dim);text-decoration:underline dotted;}
+.qrow .qa a:hover{color:var(--violet);}
+@media(max-width:520px){ .qrow{grid-template-columns:1fr;gap:2px;} }
+
+/* ---- lobby board ---- */
+.board{margin-top:40px;}
+.board h3{
+  font-family:var(--disp);font-size:19px;margin:0 0 4px;letter-spacing:.03em;
+  display:flex;align-items:center;gap:9px;
+}
+.board .bsub{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-bottom:14px;}
+.note-card{
+  background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--orange);
+  border-radius:12px;padding:11px 15px;margin-bottom:9px;font-size:14px;
+  backdrop-filter:blur(6px);
+}
+.note-card b{font-weight:600;color:var(--cyan);}
+.note-card .t{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-left:9px;}
+.board .empty{font-family:var(--mono);font-size:12.5px;color:#44557a;}
+
+/* ---- toast ---- */
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(16px);
+  background:rgba(13,20,36,.96);border:1px solid rgba(62,232,255,.45);
+  color:var(--text);padding:12px 20px;border-radius:12px;
+  font-family:var(--mono);font-size:13px;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;z-index:99;
+  box-shadow:0 0 30px rgba(62,232,255,.2);max-width:88vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+footer{
+  position:relative;z-index:2;max-width:1080px;margin:0 auto;
+  padding:0 18px 40px;font-family:var(--mono);font-size:11px;color:#44557a;text-align:center;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+<div class="gridfloor"></div>
+
+<header>
+  <div class="hd-inner">
+    <div class="toprow">
+      <div>
+        <div class="eyebrow">// Welcome to the</div>
+        <h1>BRANCH 2 VIRTUAL LOBBY</h1>
+        <div class="tagline" id="tagline"></div>
+      </div>
+      <div class="clock">
+        <div class="big" id="clock">--:--:--</div>
+        <div class="sm" id="tk-date"></div>
+      </div>
+    </div>
+    <div class="ticker">
+      <span class="chip"><span class="dot"></span><b id="tk-in">0</b> in the lobby</span>
+      <span class="chip">🏠 <b id="tk-tw">0</b> telework</span>
+      <span class="chip">🏢 <b id="tk-of">0</b> office</span>
+    </div>
+  </div>
+</header>
+
+<div class="bridge" aria-hidden="true">
+  <svg viewBox="0 0 1040 88" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- deck -->
+    <line class="b-deck" x1="0" y1="66" x2="1040" y2="66"/>
+    <!-- towers -->
+    <line class="b-tower" x1="300" y1="66" x2="300" y2="10"/>
+    <line class="b-tower" x1="740" y1="66" x2="740" y2="10"/>
+    <!-- main cables -->
+    <path class="b-cable" d="M0 30 Q150 64 300 12"/>
+    <path class="b-cable" d="M300 12 Q520 78 740 12"/>
+    <path class="b-cable" d="M740 12 Q890 64 1040 30"/>
+    <!-- hangers -->
+    <g class="b-hanger">
+      <line x1="90"  y1="42" x2="90"  y2="66"/><line x1="180" y1="52" x2="180" y2="66"/>
+      <line x1="380" y1="34" x2="380" y2="66"/><line x1="460" y1="43" x2="460" y2="66"/>
+      <line x1="520" y1="45" x2="520" y2="66"/><line x1="580" y1="43" x2="580" y2="66"/>
+      <line x1="660" y1="34" x2="660" y2="66"/><line x1="860" y1="52" x2="860" y2="66"/>
+      <line x1="950" y1="42" x2="950" y2="66"/>
+    </g>
+    <!-- traveling light pulse along the deck -->
+    <line class="b-pulse" x1="0" y1="66" x2="1040" y2="66"/>
+  </svg>
+</div>
+
+<main>
+  <section class="qotd" id="qotd">
+    <div class="qhead">
+      <div class="qtitle">⚡ Daily Transmission</div>
+      <div class="qdate" id="qdate"></div>
+    </div>
+    <blockquote id="qtext">tuning the antenna…</blockquote>
+    <div class="qmeta" id="qmeta"></div>
+    <button class="qtoggle" id="qtoggleBtn" aria-expanded="false">
+      <span class="tri">▶</span> PREVIOUS TRANSMISSIONS · LAST 30 DAYS
+    </button>
+    <div class="qarchive" id="qarchive"></div>
+  </section>
+
+  <div class="grid" id="grid"></div>
+
+  <section class="board">
+    <h3>📡 The Lobby Board</h3>
+    <div class="bsub">today's transmissions from the team — tap ✎ on your badge to broadcast</div>
+    <div id="notes"><div class="empty">// no transmissions yet. the board is listening…</div></div>
+  </section>
+</main>
+
+<footer>
+  times shown are what you logged · sign-in metadata is recorded for admin records only and never displayed here
+</footer>
+
+<div class="overlay" id="overlay"><div class="sheet" id="sheetBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= CONFIG — EDIT THIS BLOCK ================= */
+const CONFIG = {
+  // Paste your Apps Script Web App URL (ends in /exec) here:
+  scriptUrl: 'https://script.google.com/macros/s/AKfycbznJRHB0o5LHCUS-D8f0fPDFSlzmImoJA-q6CTlu7FF4QywlwpIRsEuZpjTf2VRXEeE2Q/exec',
+
+  // Your 15 engineers. photo:'' shows a colored-initials avatar.
+  // For real photos, put files in your repo (photos/ana.jpg) and
+  // set photo:'photos/ana.jpg'.
+  employees: [
+    { id: 's128480', name: 'Cresencio Figuerres',      photo:'photos/cf.jpg' },
+    { id: 's150221', name: 'Habib Hotaki',      photo:'photos/hh.jpg' },
+    { id: 's108917', name: 'Henry Fang',    photo:'photos/hf.jpg' },
+    { id: 's136468', name: 'John Yang',     photo:'photos/jy.jpg' },
+    { id: 's132575', name: 'Kuruswamy Selventhiran',     photo:'photos/ks.jpg' },
+    { id: 's135548', name: 'Sujan Talukder',      photo:'photos/st.jpg' },
+    { id: 's160221', name: 'Susanna Straw',    photo:'photos/ss.jpg' },
+    { id: 's136697', name: 'Yingjue Feng',    photo:'photos/yf.jpg' },
+    { id: 's155667', name: 'Christopher Law',     photo:'photos/cl.jpg' },
+    { id: 's156313', name: 'Deependra Subedi',      photo:'photos/ds.jpg' },
+    { id: 's162177', name: 'Shengwei Feng',   photo:'photos/sf.jpg' },
+    { id: 's153921', name: 'Xun Wang',   photo:'photos/xw.jpg' },
+    { id: 'Rotator-1', name: 'Rotator-1', photo:'photos/rr1.jpg' },
+    { id: 'Rotator-2', name: 'Rotator-2', photo:'photos/rr2.jpg' },
+    { id: 'Sudent-Asst', name: 'Giulio Magon',  photo:'photos/gm.jpg' }
+  ]
+};
+/* ============================================================ */
+
+const TAGLINES = [
+  '// initializing camaraderie… done.',
+  '// load-rated for 15 engineers and unlimited coffee.',
+  '// no hard hat required in the metaverse.',
+  '// all sign-ins are moment-connected. no pinned excuses.',
+  '// scanning for good vibes… 15 sources found.',
+  '// factor of safety: teamwork.',
+  '// this lobby passed seismic review. probably.'
+];
+
+const AWAY_STATUSES = ['RDO','Off','Vacation','Sick Leave','Rotation','Site Visit'];
+
+let EVENTS = [];
+let META = { ip:'', location:'' };
+
+/* ---------------- boot ---------------- */
+function init(){
+  document.getElementById('tagline').textContent = TAGLINES[Math.floor(Math.random()*TAGLINES.length)];
+  document.getElementById('tk-date').textContent =
+    new Date().toLocaleDateString(undefined,{weekday:'long', month:'short', day:'numeric'});
+  tick(); setInterval(tick, 1000);
+  render();
+  fetchMeta();
+  refresh();
+  loadQuotes();
+  setInterval(refresh, 90000);
+  setInterval(loadQuotes, 3600000);   // re-check hourly, in case the page stays open past midnight
+
+  const tg = document.getElementById('qtoggleBtn');
+  tg.addEventListener('click', ()=>{
+    const box = document.getElementById('qotd');
+    box.classList.toggle('open');
+    tg.setAttribute('aria-expanded', box.classList.contains('open') ? 'true' : 'false');
+  });
+}
+
+function tick(){
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString(undefined,{hour12:false});
+}
+
+function fetchMeta(){
+  fetch('https://api.ipify.org?format=json')
+    .then(r=>r.json())
+    .then(d=>{ META.ip = d.ip; return fetch('https://ipapi.co/'+d.ip+'/json/'); })
+    .then(r=>r.json())
+    .then(d=>{ META.location = [d.city,d.region,d.country_name].filter(Boolean).join(', '); })
+    .catch(()=>{});
+}
+
+function refresh(){
+  if (CONFIG.scriptUrl.indexOf('http') !== 0) return;
+  fetch(CONFIG.scriptUrl + '?action=today')
+    .then(r=>r.json())
+    .then(d=>{ if(d.ok){ EVENTS = d.events; render(); } })
+    .catch(()=>{});
+  fetch(CONFIG.scriptUrl + '?action=notes')
+    .then(r=>r.json())
+    .then(d=>{ if(d.ok) renderNotes(d.notes); })
+    .catch(()=>{});
+}
+
+/* ---------------- quote of the day ---------------- */
+function loadQuotes(){
+  // instant paint from last cached copy (works offline / before server responds)
+  try{
+    const cached = JSON.parse(localStorage.getItem('b2lobby_quotes') || 'null');
+    if(cached) renderQuotes(cached);
+  }catch(e){}
+
+  if (CONFIG.scriptUrl.indexOf('http') !== 0) return;
+  fetch(CONFIG.scriptUrl + '?action=quotes')
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.ok && d.quotes && d.quotes.length){
+        localStorage.setItem('b2lobby_quotes', JSON.stringify(d.quotes));
+        renderQuotes(d.quotes);
+      }
+    })
+    .catch(()=>{});
+}
+
+function fmtQDate(iso){
+  const d = new Date(iso + 'T12:00:00');
+  return isNaN(d) ? iso : d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+
+function renderQuotes(quotes){
+  const today = quotes[0];   // newest first from server
+  document.getElementById('qtext').textContent = today.quote;
+  document.getElementById('qdate').textContent = fmtQDate(today.date);
+  document.getElementById('qmeta').innerHTML =
+    '<span class="auth">— '+esc(today.author)+'</span>' +
+    (today.url ? '<a href="'+esc(today.url)+'" target="_blank" rel="noopener">'+esc(today.source||'source')+' ↗</a>' : '');
+
+  const past = quotes.slice(1);
+  document.getElementById('qarchive').innerHTML = past.length
+    ? past.map(q=>
+        '<div class="qrow">' +
+          '<div class="qd">'+fmtQDate(q.date)+'</div>' +
+          '<div><div class="qq">“'+esc(q.quote)+'”</div>' +
+          '<div class="qa">— '+esc(q.author)+
+            (q.url ? ' · <a href="'+esc(q.url)+'" target="_blank" rel="noopener">'+esc(q.source||'source')+' ↗</a>' : '') +
+          '</div></div>' +
+        '</div>'
+      ).join('')
+    : '<div class="qrow"><div class="qd">—</div><div class="qq" style="color:var(--dim)">the archive starts today — check back tomorrow.</div></div>';
+}
+
+/* ---------------- state reducer ---------------- */
+function empState(id){
+  const ev = EVENTS.filter(e=>e.empId===id);
+  const st = { signIn:'', status:'', signOut:'', steppedOut:'', stepBack:'', notes:0 };
+  ev.forEach(e=>{
+    if(e.type==='SIGN_IN'){ st.signIn = e.time; st.status = e.status || st.status; }
+    if(e.type==='SIGN_OUT') st.signOut = e.time;
+    if(e.type==='STEP_OUT'){ st.steppedOut = e.time; st.stepBack=''; }
+    if(e.type==='STEP_BACK') st.stepBack = e.time;
+    if(e.type==='NOTE') st.notes++;
+    if(e.type==='EDIT'){
+      if(e.editTarget==='SIGN_IN')  st.signIn  = e.newTime;
+      if(e.editTarget==='SIGN_OUT') st.signOut = e.newTime;
+      if(e.editTarget==='STEP_OUT') st.steppedOut = e.newTime;
+      if(e.editTarget==='STEP_BACK') st.stepBack  = e.newTime;
+    }
+  });
+  return st;
+}
+
+/* ---------------- render ---------------- */
+function initials(name){ return name.split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+function hue(name){ let h=0; for(const c of name) h=(h*31+c.charCodeAt(0))%360; return h; }
+
+function render(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  let cIn=0, cTw=0, cOf=0;
+
+  CONFIG.employees.forEach(emp=>{
+    const s = empState(emp.id);
+    const isAway = AWAY_STATUSES.indexOf(s.status) !== -1;
+    const isStepped = s.steppedOut && !s.stepBack && !s.signOut;
+    const isIn = s.signIn && !s.signOut && !isStepped && !isAway;
+    if(isIn){ cIn++; if(s.status==='Telework') cTw++; if(s.status==='Office') cOf++; }
+
+    const b = document.createElement('div');
+    b.className = 'badge' + (isStepped?' stepped': isIn?' in': s.signOut?' done': (isAway&&s.signIn)?' away':'');
+    b.id = 'badge-' + emp.id;
+
+    const face = emp.photo
+      ? '<img src="'+emp.photo+'" alt="">'
+      : '<span style="color:hsl('+hue(emp.name)+',85%,72%)">'+initials(emp.name)+'</span>';
+
+    let pill;
+    if(isStepped) pill = '<div class="pill stepped">stepped out '+s.steppedOut+'</div>';
+    else if(s.status) pill = '<div class="pill '+(isAway?'away':s.status.toLowerCase())+'">'+s.status.toLowerCase()+'</div>';
+    else pill = '<div class="pill">standby</div>';
+
+    b.innerHTML =
+      '<div class="ring"><div class="avatar">'+face+'</div></div>' +
+      '<div class="nm">'+emp.name+'</div>' +
+      '<div class="id">'+emp.id+'</div>' +
+      pill +
+      '<div class="times">' +
+        '<span class="'+(s.signIn?'':'off')+'">▲ '+(s.signIn||'—')+'</span>' +
+        '<span class="'+(s.signOut?'':'off')+'">▼ '+(s.signOut||'—')+'</span>' +
+      '</div>' +
+      '<button class="mini edit-btn" title="Fix my times" aria-label="Edit times">🕐</button>' +
+      '<button class="mini note-btn" title="Broadcast a note" aria-label="Post a note">✎</button>' +
+      '<div class="scan"></div>';
+
+    b.addEventListener('click', e=>{
+      if(e.target.closest('.edit-btn')) { openEdit(emp); return; }
+      if(e.target.closest('.note-btn')) { openNote(emp); return; }
+      openMain(emp);
+    });
+    grid.appendChild(b);
+  });
+
+  document.getElementById('tk-in').textContent = cIn;
+  document.getElementById('tk-tw').textContent = cTw;
+  document.getElementById('tk-of').textContent = cOf;
+}
+
+function renderNotes(notes){
+  const box = document.getElementById('notes');
+  if(!notes || !notes.length){
+    box.innerHTML = '<div class="empty">// no transmissions yet. the board is listening…</div>';
+    return;
+  }
+  box.innerHTML = notes.map(n=>
+    '<div class="note-card"><b>'+esc(n.name)+'</b><span class="t">'+esc(n.time||'')+'</span><br>'+esc(n.note)+'</div>'
+  ).join('');
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ---------------- modals ---------------- */
+const overlay = document.getElementById('overlay');
+const sheetBody = document.getElementById('sheetBody');
+overlay.addEventListener('click', e=>{ if(e.target===overlay) closeSheet(); });
+function closeSheet(){ overlay.classList.remove('show'); }
+function openSheet(html){ sheetBody.innerHTML = html; overlay.classList.add('show'); }
+
+function greeting(){
+  const h = new Date().getHours();
+  if (h < 12) return ['Good morning','☀️'];
+  if (h < 17) return ['Good afternoon','🌤️'];
+  return ['Working late','🌙'];
+}
+
+function openMain(emp){
+  const s = empState(emp.id);
+  const isStepped = s.steppedOut && !s.stepBack && !s.signOut;
+
+  if(!s.signIn){ openStatusPicker(emp); return; }
+
+  if(s.signOut){
+    openSheet(
+      '<h2>'+esc(emp.name)+'</h2><div class="sub">signed out at '+s.signOut+' · see you tomorrow 👋</div>' +
+      '<button class="act" onclick="openEdit(CONFIG.employees.find(e=>e.id===\''+emp.id+'\'))"><span class="ic">🕐</span><span>Fix my times<small>corrections welcome — we\'re all human</small></span></button>' +
+      '<div class="btnrow"><button class="btn ghost" onclick="closeSheet()">Close</button></div>'
+    );
+    return;
+  }
+  openSheet(
+    '<h2>'+esc(emp.name)+'</h2><div class="sub">signed in '+s.signIn+(s.status? ' · '+s.status.toLowerCase():'')+'</div>' +
+    (isStepped
+      ? '<button class="act" onclick="doEvent(\''+emp.id+'\',\'STEP_BACK\')"><span class="ic">🚶</span><span>I\'m back<small>stepped out at '+s.steppedOut+'</small></span></button>'
+      : '<button class="act" onclick="doEvent(\''+emp.id+'\',\'STEP_OUT\')"><span class="ic">🚪</span><span>Step out for a bit<small>appointment, errand, quick escape — logs the gap</small></span></button>'
+    ) +
+    '<button class="act" onclick="doEvent(\''+emp.id+'\',\'SIGN_OUT\')"><span class="ic">🌇</span><span>Sign out for the day<small>wraps up today\'s entry</small></span></button>' +
+    '<button class="act" onclick="openEdit(CONFIG.employees.find(e=>e.id===\''+emp.id+'\'))"><span class="ic">🕐</span><span>Fix my times<small>forgot to tap? adjust any time</small></span></button>' +
+    '<button class="act" onclick="openNote(CONFIG.employees.find(e=>e.id===\''+emp.id+'\'))"><span class="ic">📡</span><span>Broadcast to the Lobby Board<small>a note for the whole team</small></span></button>' +
+    '<div class="btnrow"><button class="btn ghost" onclick="closeSheet()">Close</button></div>'
+  );
+}
+
+function openStatusPicker(emp){
+  const g = greeting();
+  openSheet(
+    '<h2>'+g[0]+', '+esc(emp.name.split(' ')[0])+' '+g[1]+'</h2>' +
+    '<div class="sub">where are you today?</div>' +
+    '<div class="opt-grid">' +
+      '<button class="opt" onclick="signIn(\''+emp.id+'\',\'Telework\')">🏠 Telework</button>' +
+      '<button class="opt" onclick="signIn(\''+emp.id+'\',\'Office\')">🏢 Office</button>' +
+      '<button class="opt wide more" onclick="openMoreOptions(\''+emp.id+'\')">More options…</button>' +
+    '</div>'
+  );
+}
+
+function openMoreOptions(empId){
+  const emp = CONFIG.employees.find(e=>e.id===empId);
+  openSheet(
+    '<h2>'+esc(emp.name)+'</h2><div class="sub">marking today as…</div>' +
+    '<div class="opt-grid six">' +
+      AWAY_STATUSES.map(st=>'<button class="opt" onclick="signIn(\''+empId+'\',\''+st+'\')">'+st+'</button>').join('') +
+    '</div>' +
+    '<div class="btnrow"><button class="btn ghost" onclick="openStatusPicker(CONFIG.employees.find(e=>e.id===\''+empId+'\'))">← Back</button></div>'
+  );
+}
+
+function openEdit(emp){
+  const s = empState(emp.id);
+  const rows = [
+    { key:'SIGN_IN',   label:'sign in',    val:s.signIn },
+    { key:'SIGN_OUT',  label:'sign out',   val:s.signOut },
+    { key:'STEP_OUT',  label:'stepped out',val:s.steppedOut },
+    { key:'STEP_BACK', label:'came back',  val:s.stepBack }
+  ];
+  openSheet(
+    '<h2>🕐 Fix my times</h2><div class="sub">'+esc(emp.name)+' — set the time it actually happened. leave blank what you don\'t need.</div>' +
+    rows.map(r=>
+      '<div class="editline"><label>'+r.label+(r.val? ' <span>(now '+r.val+')</span>':'')+'</label>' +
+      '<input type="time" id="ed-'+r.key+'"></div>'
+    ).join('') +
+    '<div class="btnrow">' +
+      '<button class="btn ghost" onclick="closeSheet()">Cancel</button>' +
+      '<button class="btn primary" onclick="saveEdits(\''+emp.id+'\')">Save</button>' +
+    '</div>'
+  );
+}
+
+function openNote(emp){
+  openSheet(
+    '<h2>📡 Broadcast to the Lobby Board</h2><div class="sub">from '+esc(emp.name)+' — visible to the whole team today</div>' +
+    '<textarea id="noteText" placeholder="e.g. Out 1–3 PM for a dr. appointment. Also: donuts in the break room (real ones, not virtual)."></textarea>' +
+    '<div class="btnrow">' +
+      '<button class="btn ghost" onclick="closeSheet()">Cancel</button>' +
+      '<button class="btn primary" onclick="postNote(\''+emp.id+'\')">Transmit</button>' +
+    '</div>'
+  );
+}
+
+/* ---------------- actions ---------------- */
+function nowStr(){
+  return new Date().toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+}
+function timeInputToStr(v){
+  if(!v) return '';
+  const [h,m] = v.split(':').map(Number);
+  const d = new Date(); d.setHours(h,m,0,0);
+  return d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+}
+
+function signIn(empId, status){ doEvent(empId, 'SIGN_IN', { status }); }
+
+function doEvent(empId, type, extra){
+  const emp = CONFIG.employees.find(e=>e.id===empId);
+  const t = nowStr();
+  const payload = Object.assign({
+    empId: emp.id, name: emp.name, type: type, clientTime: t,
+    ip: META.ip, location: META.location, userAgent: navigator.userAgent
+  }, extra || {});
+
+  EVENTS.push({ empId:emp.id, type:type, status:(extra&&extra.status)||'', time:t, editTarget:'', newTime:'' });
+  render(); closeSheet();
+
+  // scan-sweep the badge
+  const b = document.getElementById('badge-'+empId);
+  if(b){ b.classList.add('scanned'); setTimeout(()=>b.classList.remove('scanned'), 800); }
+
+  const msgs = {
+    SIGN_IN:  ((extra&&extra.status&&AWAY_STATUSES.indexOf(extra.status)!==-1)
+                ? extra.status+' noted — take care! ✦' : '✦ signed in '+t+' — have a good one 🌉'),
+    SIGN_OUT: '✦ signed out '+t+' — go enjoy the non-virtual world',
+    STEP_OUT: '✦ stepped out '+t+' — tap yourself when you\'re back',
+    STEP_BACK:'✦ welcome back! logged '+t
+  };
+  toast(msgs[type] || 'logged.');
+  send(payload);
+}
+
+function saveEdits(empId){
+  const emp = CONFIG.employees.find(e=>e.id===empId);
+  const targets = ['SIGN_IN','SIGN_OUT','STEP_OUT','STEP_BACK'];
+  let count = 0;
+  targets.forEach(k=>{
+    const v = document.getElementById('ed-'+k).value;
+    if(!v) return;
+    const str = timeInputToStr(v);
+    count++;
+    EVENTS.push({ empId:emp.id, type:'EDIT', status:'', time:nowStr(), editTarget:k, newTime:str });
+    send({
+      empId:emp.id, name:emp.name, type:'EDIT', clientTime:nowStr(),
+      editTarget:k, newTime:str,
+      ip:META.ip, location:META.location, userAgent:navigator.userAgent
+    });
+  });
+  render(); closeSheet();
+  toast(count ? '✦ updated — thanks for keeping it accurate' : 'nothing changed.');
+}
+
+function postNote(empId){
+  const emp = CONFIG.employees.find(e=>e.id===empId);
+  const txt = document.getElementById('noteText').value.trim();
+  if(!txt){ toast('write something first — even "donuts in break room" counts.'); return; }
+  send({
+    empId:emp.id, name:emp.name, type:'NOTE', clientTime:nowStr(), note:txt,
+    ip:META.ip, location:META.location, userAgent:navigator.userAgent
+  });
+  closeSheet();
+  toast('✦ transmitted to the Lobby Board 📡');
+  setTimeout(refresh, 1200);
+}
+
+/* POST as text/plain: avoids a CORS preflight, which Apps Script doesn't handle */
+function send(payload){
+  if (CONFIG.scriptUrl.indexOf('http') !== 0){
+    toast('⚠ backend not connected yet — set CONFIG.scriptUrl.');
+    return;
+  }
+  fetch(CONFIG.scriptUrl, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  }).catch(()=> toast('⚠ couldn\'t reach the log — will show after refresh if it went through.'));
+}
+
+/* ---------------- toast ---------------- */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._h);
+  toast._h = setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+init();
+</script>
+</body>
+</html>
